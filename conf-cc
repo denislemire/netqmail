@@ -1,0 +1,3 @@
+cc -O2 -I/usr/local/vpopmail/include
+
+This will be used to compile .c files.
