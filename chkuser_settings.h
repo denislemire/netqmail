@@ -58,7 +58,7 @@
  * Uncomment this to enable uid/gid changing
  * (switching UID/GID is NOT compatible with TLS; you may keep this commented if you have TLS)
  */
-#define CHKUSER_ENABLE_UIDGID
+/* #define CHKUSER_ENABLE_UIDGID */
 
 /*
  * Uncomment this to check if a domain is ALWAYS specified in rcpt addresses
