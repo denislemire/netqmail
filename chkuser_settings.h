@@ -105,13 +105,13 @@
 /*
  * Uncomment to enable logging of rejected recipients and variuos limits reached
  */
-#define CHKUSER_ENABLE_LOGGING
+/* #define CHKUSER_ENABLE_LOGGING */
 
 /*
  * Uncomment to enable logging of "good" rcpts
  * valid only if CHKUSER_ENABLE_LOGGING is defined
  */
-#define CHKUSER_LOG_VALID_RCPT
+/* #define CHKUSER_LOG_VALID_RCPT */
 
 /*
  * Uncomment to enable usage of a variable escluding any check on the sender.
