@@ -42,7 +42,9 @@
 
 #include "fd.h"
 
-#define AUTHCRAM
+/* Disabled AUTHCRAM - 2005/09/08 */
+/* #define AUTHCRAM */
+
 #define MAXHOPS 100
 unsigned int databytes = 0;
 int timeout = 1200;
