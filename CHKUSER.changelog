@@ -1,0 +1,141 @@
+
+CHKUSER 2.0 change log
+
+V 2.0.8 - 7 december 2004
+	Features
+	Freeze of new features of 2.0.7, except null senders behaviour.
+	CHKUSER_ENABLE_NULL_SENDER_WITH_TCPREMOTEHOST is no more available
+	CHKUSER_ENABLE_NULL_SENDER is no more available
+	NULL SENDERS are now always accepted. No option is available to disable
+		this behaviour. Previous chkuser versions broke RFC compatibility on
+		null senders, and complicated real life e-mailing.
+	Logging of null senders <> is now available.
+	
+	Bugs corrected
+	Sender controls were not executed if CHKUSER_STARTING_VARIABLE was defined
+		(thanks to Charles Sprickman)
+	Domains not in control/virtualdomains are now explicitely excluded from
+		following cascade checks; in previous versions following cascade
+		checks were done using fake domains paths.
+	vget_assign is now handled correctly (a domain in rcpthosts but not
+		in virtualdomains could have an incorrect path in previous versions
+		(this bug is also in all chkusr versions)
+
+	Defaults changed
+	CHKUSER_RCPT_FORMAT is now undefined as default
+	CHKUSER_RCPT_MX is now undefined as default.
+	CHKUSER_SENDER_FORMAT is now undefined as default
+	CHKUSER_SENDER_MX is now undefined as default.
+	CHKUSER_ERROR_DELAY_INCREASE new default is 300 milliseconds
+	
+V 2.0.7 - 25 october 2004
+	Features
+	added vclose() of DB auth connection, overriding
+		qmail-smtpd _exit call
+	improved MX checking; now SOFT failure is handled as
+		temporary error.
+	added #define CHKUSER_RCPTMX_TMP_STRING
+	added #define CHKUSER_SENDERMX_TMP_STRING 
+	added handling of mailman mailing lists
+		(and related #define CHKUSER_ENABLE_MAILMAN_LISTS)
+	changed order of checking for recipients:
+		1 - valias
+		2 - alias
+		3 - alias extensions
+		4 - users
+		5 - users extensions
+		6 - lists
+	added #define CHKUSER_ACCEPT_NULL_SENDER (default defined)
+	added #define CHKUSER_ENABLE_ALIAS_DEFAULT (default not defined)
+		enables checking of .qmail-alias-default
+	added #define CHKUSER_IDENTIFY_REMOTE_VARIABLE "CHKUSER_IDENTIFY"
+		in order to allow a easy identification of remote IP
+		(substitutes RELAYCLIENT in chkuser logging)
+	added #define CHKUSER_ALLOW_RCPT_SRS
+		enable usage of "#" and "+" characters within rcpt address
+	added #define CHKUSER_ALLOW_RCPT_CHAR_1 '$'
+	added #define CHKUSER_ALLOW_RCPT_CHAR_2 '%'
+	added #define CHKUSER_ALLOW_RCPT_CHAR_3 '£'
+	added #define CHKUSER_ALLOW_RCPT_CHAR_4 '?'
+	added #define CHKUSER_ALLOW_RCPT_CHAR_5 '*'
+	#define CHKUSER_ENABLE_USERS_EXTENSIONS
+		substitutes #define CHKUSER_ENABLE_EXTENSIONS
+	#define CHKUSER_ENABLE_EZMLM_LISTS
+		substitutes #define CHKUSER_ENABLE_LISTS
+	#define CHKUSER_USERS_DASH
+		substitutes #define CHKUSER_EXTENSION_DASH
+
+	Bugs
+	sender address "name@" could cause a crash. Corrected
+		(Thanks to Dmitry Petukhov)
+	Corrected Makefile: now qmail-smtpd.c recompiles if chkuser.h
+		changes
+	Corrected a bug in #endif sequence related to
+		#define CHKUSER_RCPT_FORMAT (thanks to Alex Plainer)
+	Corrected a bug in chkuser_sender; now is not executed when
+		chkuser is disabled
+	Corrected check of format for domains:
+		"xn--" admitted as leading string
+	Deleted correction over usage of RELAYCLIENT variable
+		Previous correction could affect a special
+		feature of RELAYCLIENT (thanks to Alex Pleiner)
+
+	Defaults changed
+	#define CHKUSER_ENABLE_NULL_SENDER_WITH_TCPREMOTEHOST (default undefined)
+
+
+V 2.0.6 - 25 september 2004
+	No bugs, just doc updates and an empty patch file corrected
+
+	#define CHKUSER_ENABLE_VGET_REAL_DOMAIN was existing and working in code,
+		but not reported both in docs and inside chkuser_settings.h
+			(default is commented, but this #define is important)	
+	patch for toaster-0.6-1 was empty. Now the correct one is provided
+
+V 2.0.5 - 23 september 2004
+	This is the first public release.
+
+	added #define CHKUSER_ALLOW_SENDER_CHAR_1 (default not defined) 
+	added #define CHKUSER_ALLOW_SENDER_CHAR_2 (default not defined) 
+	added #define CHKUSER_ALLOW_SENDER_CHAR_3 (default not defined) 
+	added #define CHKUSER_ALLOW_SENDER_CHAR_4 (default not defined) 
+	added #define CHKUSER_ALLOW_SENDER_CHAR_5 (default not defined) 
+	added #define CHKUSER_MIN_DOMAIN_LEN (default defined 4) -
+		Previously it was hard coded as 5. Juergen Kendzorra
+		showed me some existing names long only 4 chars. 
+	added #define CHKUSER_LOG_VALID_SENDER (default defined)
+
+V 2.0.4 - 15 september 2004
+
+	added #define CHKUSER_SENDER_NOCHECK_VARIABLE (default not defined) 
+	added #define CHKUSER_DEBUG_STDERR (default not defined) 
+	added #define CHKUSER_ALLOW_SENDER_SRS (default not defined) 
+	cleaned some typos in code and documentation (thanks to Juergen
+		Kendzorra - http://www.kendzorra.de) 
+
+
+V 2.0.3 - 8 september 2004
+	This is the first version released outside, for wider testing.
+
+	Tested Makefile for netqmail 1.05 
+	Added Makefiles for applying over other patches 
+
+V 2.0.0 - july 2004
+	chkuser 2.0.0 starts here, and is a private internal release.
+	Version 2.0 is much more modular than previous one (named chkusr),
+	and has been designed with the goal of enabling more features and
+	semplifying installations and upgrades of the patch himself. 
+
+	chkusr changes his name, to reflect a deep change of the patch. 
+
+	Chkusr 1.0 received a lot of feedbacks and suggestions.
+	The most of these suggestions are now inside version 2.0.
+
+		- Marcelo Coelho (marcelo at tpn.com.br), segnaled me some
+		unseen minor bugs of chkusr 1.0 (minor but very annoying to
+		my pride) and suggested some very interesting features
+		(some of them are now in chkuser 2.0). 
+		- Iulian Margarintescu (http:://www.erata.net) suggested a
+		workable way of introducing quota check on recipients
+		(now in chkuser 2.0). 
+

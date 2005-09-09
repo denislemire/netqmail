@@ -1,0 +1,58 @@
+
+chkuser 2.0.8 logging format
+
+When #defines for logging are enabled, chkuser patch emits log informations
+on the same qmail-smtpd log destination
+
+This is the log format:
+
+    CHKUSER "brief message": \
+	    from <sender:remoteinfo:relayclient> \
+	    remote <helo:remotehostname:remotehostip> \
+	    rcpt <recipient> : "extended message"
+
+where
+	brief message 	
+		    * accepted rcpt
+		    * relaying rcpt
+		    * rejected relaying
+		    * rejected rcpt
+		    * no auth resource
+		    * mbx overquota
+		    * rejected intrusion
+		    * intrusion threshold
+		    * rejected sender
+
+	sender 	sender declared within "mail from"
+
+	remoteinfo	the value of "TCPREMOTEINFO" or the autenticated user
+
+	relayclient 	the value of RELAYCLIENT env variable (be careful to set it,
+			inside your tcp.cdb with a value that let you understand who is sending)
+
+	helo 		helo declared from remote system
+
+	hostname 	the value of "TCPREMOTEHOST"
+
+	remotehostip 	the value of "TCPREMOTEIP"
+
+	recipient 	recipient address
+
+	extended message 	this field has more wide description for
+				some generic "brief message":
+			accepted rcpt 	found existing recipient
+			relaying rcpt 	client allowed to relay
+			rejected relaying 	client not allowed to relay
+			rejected rcpt 	not existing recipient
+			rejected rcpt 	max number of recipients
+			rejected rcpt 	max number of invalid recipients
+			rejected rcpt 	invalid rcpt address format
+			rejected rcpt 	invalid rcpt MX domain
+			intrusion threshold 	max number of allowed rcpt
+			intrusion threshold 	max number of allowed invalid rcpt
+			rejected intrusion 	rcpt ignored, session over intrusion threshold
+			no auth resource 	no auth resource available
+			mbx overquota 	rcpt mailbox is overquota
+			rejected sender 	invalid sender address format
+			rejected sender 	invalid sender MX domain
+	
