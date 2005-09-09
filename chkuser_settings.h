@@ -124,7 +124,7 @@
  * Uncomment to enable usage of "#" and "+" characters within sender address
  * This is used by SRS (Sender Rewriting Scheme) products
  */
-/* #define CHKUSER_ALLOW_SENDER_SRS */
+#define CHKUSER_ALLOW_SENDER_SRS
 
 /*
  * If you need more additional characters to be accepted within sender address
@@ -244,7 +244,7 @@
  * Uncomment to enable usage of "#" and "+" characters within rcpt address
  * This is used by SRS (Sender Rewriting Scheme) products
  */
-/* #define CHKUSER_ALLOW_RCPT_SRS */
+#define CHKUSER_ALLOW_RCPT_SRS
 
 /*
  * If you need more additional characters to be accepted within rcpt address
@@ -363,7 +363,7 @@
  * Uncomment to enable checking of domain MX for sender address
  * it works on the first rcpt address, despite of any domain setting on chkuser
  */
-/* #define CHKUSER_SENDER_MX */
+#define CHKUSER_SENDER_MX
 
 /*
  * Delay to add, for each not existing recipient, to the initial CHKUSER_ERROR_DELAY value
