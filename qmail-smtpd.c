@@ -119,6 +119,8 @@ int err_noauth() { out("504 auth type unimplemented (#5.5.1)\r\n"); return -1; }
 int err_authabrt() { out("501 auth exchange cancelled (#5.0.0)\r\n"); return -1; }
 int err_input() { out("501 malformed auth input (#5.5.4)\r\n"); return -1; }
 
+void err_authrequired() { out("503 you must authenticate first (#5.5.1)\r\n"); }
+
 stralloc greeting = {0};
 stralloc spflocal = {0};
 stralloc spfguess = {0};
@@ -143,6 +145,8 @@ char *remotehost;
 char *remoteinfo;
 char *local;
 char *relayclient;
+char *requireauth;
+int authd = 0;
 
 stralloc helohost = {0};
 char *fakehelo; /* pointer into helohost, or 0 */
@@ -214,6 +218,7 @@ void setup()
   if (!remotehost) remotehost = "unknown";
   remoteinfo = env_get("TCPREMOTEINFO");
   relayclient = env_get("RELAYCLIENT");
+  requireauth = env_get("REQUIREAUTH");
 
 #ifdef TLS
   if (env_get("SMTPS")) { smtps = 1; tls_init(); }
@@ -379,6 +384,7 @@ void smtp_mail(arg) char *arg;
 {
   int r;
 
+  if (requireauth && !authd) { err_authrequired(); return; }
   if (!addrparse(arg)) { err_syntax(); return; }
 /* start chkuser code */
   if (chkuser_sender (&addr) != CHKUSER_OK) { return; }
@@ -656,7 +662,6 @@ char *hostname;
 char **childargs;
 substdio ssup;
 char upbuf[128];
-int authd = 0;
 
 int authgetl(void) {
   int i;
