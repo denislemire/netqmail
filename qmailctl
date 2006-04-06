@@ -23,6 +23,11 @@ case "$1" in
     else
       echo "qmail-smtpd supervise not running"
     fi
+    if svok /var/service/qmail-msa ; then
+      svc -u /var/service/qmail-msa /var/service/qmail-msa/log
+    else
+      echo "qmail-msa supervise not running"
+    fi
     if svok /var/service/qmail-pop3d ; then
       svc -u /var/service/qmail-pop3d /var/service/qmail-pop3d/log
     else
@@ -36,6 +41,8 @@ case "$1" in
     echo "Stopping qmail..."
     echo "  qmail-smtpd"
     svc -d /var/service/qmail-smtpd /var/service/qmail-smtpd/log
+    echo "  qmail-msa"
+    svc -d /var/service/qmail-msa /var/service/qmail-msa/log
     echo "  qmail-send"
     svc -d /var/service/qmail-send /var/service/qmail-send/log
     echo "  qmail-pop3d"
@@ -49,6 +56,8 @@ case "$1" in
     svstat /var/service/qmail-send/log
     svstat /var/service/qmail-smtpd
     svstat /var/service/qmail-smtpd/log
+    svstat /var/service/qmail-msa
+    svstat /var/service/qmail-msa/log
     svstat /var/service/qmail-pop3d
     svstat /var/service/qmail-pop3d/log
     qmail-qstat
