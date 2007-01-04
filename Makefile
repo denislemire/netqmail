@@ -922,6 +922,38 @@ datetime.h gen_alloc.h stralloc.h gen_alloc.h str.h exit.h hfield.h \
 readwrite.h open.h headerbody.h maildir.h strerr.h
 	./compile maildirwatch.c
 
+maildirgetquota.o: \
+compile maildirgetquota.c maildirgetquota.h maildirmisc.h
+	./compile maildirgetquota.c
+
+maildirflags.o: \
+compile maildirflags.c
+	./compile maildirflags.c
+
+maildiropen.o: \
+compile maildiropen.c maildirmisc.h
+	./compile maildiropen.c
+
+maildirparsequota.o: \
+compile maildirparsequota.c
+	./compile maildirparsequota.c
+
+maildirquota.o: \
+compile maildirquota.c maildirquota.h maildirmisc.h numlib.h
+	./compile maildirquota.c
+
+overmaildirquota.o: \
+compile overmaildirquota.c 
+	./compile overmaildirquota.c
+
+strtimet.o: \
+compile strtimet.c 
+	./compile strtimet.c
+
+strpidt.o: \
+compile strpidt.c 
+	./compile strpidt.c
+
 mailsubj: \
 warn-auto.sh mailsubj.sh conf-qmail conf-break conf-split
 	cat warn-auto.sh mailsubj.sh \
@@ -1206,12 +1238,15 @@ qmail-local: \
 load qmail-local.o qmail.o quote.o now.o gfrom.o myctime.o \
 slurpclose.o case.a getln.a getopt.a sig.a open.a seek.a lock.a fd.a \
 wait.a env.a stralloc.a alloc.a strerr.a substdio.a error.a str.a \
-fs.a datetime.a auto_qmail.o auto_patrn.o socket.lib
+fs.a datetime.a auto_qmail.o auto_patrn.o socket.lib maildirquota.o \
+maildirgetquota.o maildiropen.o maildirparsequota.o overmaildirquota.o \
+strtimet.o strpidt.o
 	./load qmail-local qmail.o quote.o now.o gfrom.o myctime.o \
 	slurpclose.o case.a getln.a getopt.a sig.a open.a seek.a \
 	lock.a fd.a wait.a env.a stralloc.a alloc.a strerr.a \
 	substdio.a error.a str.a fs.a datetime.a auto_qmail.o \
-	auto_patrn.o  `cat socket.lib`
+	auto_patrn.o  `cat socket.lib` maildirquota.o maildirgetquota.o \
+    maildiropen.o maildirparsequota.o overmaildirquota.o strtimet.o strpidt.o
 
 qmail-local.0: \
 qmail-local.8
@@ -1301,11 +1336,13 @@ readwrite.h open.h error.h case.h auto_qmail.h
 qmail-pop3d: \
 load qmail-pop3d.o commands.o case.a timeoutread.o timeoutwrite.o \
 maildir.o prioq.o now.o env.a strerr.a sig.a open.a getln.a \
-stralloc.a alloc.a substdio.a error.a str.a fs.a socket.lib
+stralloc.a alloc.a substdio.a error.a str.a fs.a socket.lib maildirquota.o \
+maildirparsequota.o maildirflags.o maildiropen.o strtimet.o strpidt.o
 	./load qmail-pop3d commands.o case.a timeoutread.o \
 	timeoutwrite.o maildir.o prioq.o now.o env.a strerr.a sig.a \
 	open.a getln.a stralloc.a alloc.a substdio.a error.a str.a \
-	fs.a  `cat socket.lib`
+	fs.a  `cat socket.lib` maildirquota.o maildirgetquota.o \
+    maildirparsequota.o maildirflags.o maildiropen.o strtimet.o strpidt.o
 
 qmail-pop3d.0: \
 qmail-pop3d.8

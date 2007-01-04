@@ -15,6 +15,14 @@ myctime.o
 slurpclose.o
 make-makelib
 makelib
+maildirflags.o
+maildirparsequota.o
+maildiropen.o
+maildirgetquota.o
+maildirquota.o
+overmaildirquota.o
+strtimet.o
+strpidt.o
 case_diffb.o
 case_diffs.o
 case_lowerb.o
