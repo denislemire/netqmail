@@ -100,7 +100,7 @@
  * This is to enable auth open checking
  * it is useful to avoid bouncing if MySQL/LDAP/PostGRES/etc are down or not reachable
  */
-/* #define CHKUSER_ENABLE_VAUTH_OPEN */
+#define CHKUSER_ENABLE_VAUTH_OPEN
 
 /*
  * Uncomment to enable logging of rejected recipients and variuos limits reached

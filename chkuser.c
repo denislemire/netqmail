@@ -659,7 +659,7 @@ static int realrcpt (stralloc *sender, stralloc *rcpt)
 
 #if defined CHKUSER_ENABLE_VAUTH_OPEN
                 if (db_already_open != 1) {
-                        if (vauth_open () == 0) {
+                        if (vauth_open (1) == 0) {
                                 db_already_open == 1;
                         } else {
                                 retstat = CHKUSER_ERR_AUTH_RESOURCE;
