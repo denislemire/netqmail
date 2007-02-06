@@ -340,10 +340,13 @@ make-compile warn-auto.sh systype
 	chmod 755 compile
 
 condredirect: \
-load condredirect.o qmail.o strerr.a fd.a sig.a wait.a seek.a env.a \
-substdio.a error.a str.a fs.a auto_qmail.o
-	./load condredirect qmail.o strerr.a fd.a sig.a wait.a \
-	seek.a env.a substdio.a error.a str.a fs.a auto_qmail.o 
+load condredirect.o srs.o rcpthosts.o cdb.a control.o constmap.o case.a \
+	getln.a stralloc.a alloc.a open.a qmail.o strerr.a fd.a sig.a \
+	wait.a seek.a env.a substdio.a error.a str.a fs.a auto_qmail.o
+	./load condredirect srs.o rcpthosts.o cdb.a control.o constmap.o \
+	case.a getln.a stralloc.a alloc.a open.a qmail.o strerr.a fd.a sig.a \
+	wait.a seek.a env.a substdio.a error.a str.a fs.a auto_qmail.o \
+	-I/usr/local/include -L/usr/local/lib -lsrs2
 
 condredirect.0: \
 condredirect.1
@@ -351,7 +354,7 @@ condredirect.1
 
 condredirect.o: \
 compile condredirect.c sig.h readwrite.h exit.h env.h error.h fork.h \
-wait.h seek.h qmail.h substdio.h strerr.h substdio.h fmt.h
+wait.h seek.h qmail.h substdio.h strerr.h substdio.h fmt.h stralloc.h srs.h
 	./compile condredirect.c
 
 config: \
@@ -625,10 +628,13 @@ compile load tryvfork.c fork.h1 fork.h2
 	rm -f tryvfork.o tryvfork
 
 forward: \
-load forward.o qmail.o strerr.a alloc.a fd.a wait.a sig.a env.a \
-substdio.a error.a str.a fs.a auto_qmail.o
-	./load forward qmail.o strerr.a alloc.a fd.a wait.a sig.a \
-	env.a substdio.a error.a str.a fs.a auto_qmail.o 
+load forward.o srs.o qmail.o strerr.a control.o rcpthosts.o constmap.o \
+	cdb.a case.a open.a stralloc.a alloc.a getln.a \
+	fd.a wait.a sig.a env.a substdio.a error.a str.a fs.a auto_qmail.o
+	./load forward srs.o qmail.o strerr.a control.o rcpthosts.o constmap.o \
+	cdb.a case.a open.a stralloc.a alloc.a getln.a \
+	fd.a wait.a sig.a env.a substdio.a error.a str.a fs.a auto_qmail.o \
+	-I/usr/local/include -L/usr/local/lib -lsrs2
 
 forward.0: \
 forward.1
@@ -636,7 +642,7 @@ forward.1
 
 forward.o: \
 compile forward.c sig.h readwrite.h exit.h env.h qmail.h substdio.h \
-strerr.h substdio.h fmt.h
+strerr.h substdio.h fmt.h stralloc.h srs.h
 	./compile forward.c
 
 fs.a: \
@@ -840,7 +846,7 @@ dnsptr dnsip dnsmxip dnsfq dnstxt hostname ipmeprint qreceipt qsmhook qbiff \
 forward preline condredirect bouncesaying except maildirmake \
 maildir2mbox maildirwatch qail elq pinq idedit install-big install \
 instcheck home home+df proc proc+df binm1 binm1+df binm2 binm2+df \
-binm3 binm3+df spfquery update_tmprsadh
+binm3 binm3+df spfquery update_tmprsadh srsfilter
 
 load: \
 make-load warn-auto.sh systype
@@ -1200,15 +1206,16 @@ qmail-header.5
 	nroff -man qmail-header.5 > qmail-header.0
 
 qmail-inject: \
-load qmail-inject.o headerbody.o hfield.o newfield.o quote.o now.o \
+load qmail-inject.o rcpthosts.o cdb.a srs.o headerbody.o hfield.o newfield.o quote.o now.o \
 control.o date822fmt.o constmap.o qmail.o case.a fd.a wait.a open.a \
 getln.a sig.a getopt.a datetime.a token822.o env.a stralloc.a alloc.a \
 substdio.a error.a str.a fs.a auto_qmail.o
-	./load qmail-inject headerbody.o hfield.o newfield.o \
+	./load qmail-inject rcpthosts.o cdb.a srs.o headerbody.o hfield.o newfield.o \
 	quote.o now.o control.o date822fmt.o constmap.o qmail.o \
 	case.a fd.a wait.a open.a getln.a sig.a getopt.a datetime.a \
 	token822.o env.a stralloc.a alloc.a substdio.a error.a \
-	str.a fs.a auto_qmail.o 
+	str.a fs.a auto_qmail.o \
+	-I/usr/local/include -L/usr/local/lib -lsrs2
 
 qmail-inject.0: \
 qmail-inject.8
@@ -1235,18 +1242,19 @@ qmail-limits.9 conf-break conf-spawn
 	> qmail-limits.7
 
 qmail-local: \
-load qmail-local.o qmail.o quote.o now.o gfrom.o myctime.o \
-slurpclose.o case.a getln.a getopt.a sig.a open.a seek.a lock.a fd.a \
-wait.a env.a stralloc.a alloc.a strerr.a substdio.a error.a str.a \
-fs.a datetime.a auto_qmail.o auto_patrn.o socket.lib maildirquota.o \
+load qmail-local.o control.o rcpthosts.o constmap.o qmail.o quote.o now.o cdb.a \
+gfrom.o srs.o myctime.o slurpclose.o case.a getln.a getopt.a sig.a open.a \
+seek.a lock.a fd.a wait.a env.a stralloc.a alloc.a strerr.a substdio.a error.a \
+str.a fs.a datetime.a auto_qmail.o auto_patrn.o socket.lib maildirquota.o \
 maildirgetquota.o maildiropen.o maildirparsequota.o overmaildirquota.o \
 strtimet.o strpidt.o
-	./load qmail-local qmail.o quote.o now.o gfrom.o myctime.o \
-	slurpclose.o case.a getln.a getopt.a sig.a open.a seek.a \
-	lock.a fd.a wait.a env.a stralloc.a alloc.a strerr.a \
+	./load qmail-local rcpthosts.o control.o constmap.o srs.o qmail.o quote.o \
+	now.o gfrom.o myctime.o cdb.a slurpclose.o case.a getln.a getopt.a sig.a \
+	open.a seek.a lock.a fd.a wait.a env.a stralloc.a alloc.a strerr.a \
 	substdio.a error.a str.a fs.a datetime.a auto_qmail.o \
-	auto_patrn.o  `cat socket.lib` maildirquota.o maildirgetquota.o \
-    maildiropen.o maildirparsequota.o overmaildirquota.o strtimet.o strpidt.o
+        auto_patrn.o  `cat socket.lib` maildirquota.o maildirgetquota.o \
+        maildiropen.o maildirparsequota.o overmaildirquota.o strtimet.o strpidt.o \
+	-I/usr/local/include -L/usr/local/lib -lsrs2
 
 qmail-local.0: \
 qmail-local.8
@@ -1549,16 +1557,17 @@ tcpto.h
 	./compile qmail-rspawn.c
 
 qmail-send: \
-load qmail-send.o qsutil.o control.o constmap.o newfield.o prioq.o \
+load qmail-send.o rcpthosts.o qsutil.o srs.o control.o constmap.o newfield.o prioq.o \
 trigger.o fmtqfn.o quote.o now.o readsubdir.o qmail.o date822fmt.o \
 datetime.a case.a ndelay.a getln.a wait.a seek.a fd.a sig.a open.a \
 lock.a stralloc.a alloc.a substdio.a error.a str.a fs.a auto_qmail.o \
-auto_split.o env.a
-	./load qmail-send qsutil.o control.o constmap.o newfield.o \
+auto_split.o cdb.a env.a
+	./load qmail-send rcpthosts.o qsutil.o control.o constmap.o srs.o newfield.o \
 	prioq.o trigger.o fmtqfn.o quote.o now.o readsubdir.o \
 	qmail.o date822fmt.o datetime.a case.a ndelay.a getln.a \
 	wait.a seek.a fd.a sig.a open.a lock.a stralloc.a alloc.a \
-	substdio.a error.a str.a fs.a auto_qmail.o auto_split.o env.a
+	substdio.a error.a str.a fs.a auto_qmail.o auto_split.o env.a cdb.a \
+	-I/usr/local/include -L/usr/local/lib -lsrs2
 
 qmail-send.0: \
 qmail-send.8
@@ -2001,6 +2010,26 @@ splogger.o: \
 compile splogger.c error.h substdio.h subfd.h substdio.h exit.h str.h \
 scan.h fmt.h
 	./compile splogger.c
+
+srs.o: \
+compile srs.c srs.h auto_qmail.h stralloc.h
+	./compile srs.c
+
+
+srsfilter: \
+load srsfilter.o srs.o qmail.o strerr.a control.o rcpthosts.o constmap.o \
+	cdb.a case.a open.a stralloc.a alloc.a getln.a fd.a wait.a sig.a \
+	env.a substdio.a error.a str.a fs.a auto_qmail.o
+	./load srsfilter srs.o qmail.o strerr.a control.o rcpthosts.o constmap.o \
+	cdb.a case.a open.a stralloc.a alloc.a getln.a fd.a wait.a sig.a \
+	env.a substdio.a error.a str.a fs.a auto_qmail.o \
+	-I/usr/local/include -L/usr/local/lib -lsrs2
+
+srsfilter.o: \
+compile srsfilter.c sig.h readwrite.h exit.h env.h qmail.h substdio.h strerr.h \
+substdio.h fmt.h stralloc.h srs.h
+	./compile srsfilter.c
+
 
 str.a: \
 makelib str_len.o str_diff.o str_diffn.o str_cpy.o str_cpyb.o str_chr.o \

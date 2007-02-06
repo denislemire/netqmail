@@ -31,6 +31,7 @@
 #include "constmap.h"
 #include "fmtqfn.h"
 #include "readsubdir.h"
+#include "srs.h"
 
 /* critical timing feature #1: if not triggered, do not busy-loop */
 /* critical timing feature #2: if triggered, respond within fixed time */
@@ -55,6 +56,7 @@ stralloc bouncefrom = {0};
 stralloc bouncehost = {0};
 stralloc doublebounceto = {0};
 stralloc doublebouncehost = {0};
+stralloc srs_domain = {0};
 
 char strnum2[FMT_ULONG];
 char strnum3[FMT_ULONG];
@@ -691,8 +693,29 @@ unsigned long id;
     { log1("warning: unable to start qmail-queue, will try later\n"); return 0; }
    qp = qmail_qp(&qqt);
 
-   if (*sender.s) { bouncesender = ""; bouncerecip = sender.s; }
-   else { bouncesender = "#@[]"; bouncerecip = doublebounceto.s; }
+   if (*sender.s) {
+     if (srs_domain.len) {
+       int j = 0;
+       j = byte_rchr(sender.s, sender.len, '@');
+       if (j < sender.len) {
+         if (srs_domain.len == sender.len - j - 1 && stralloc_starts(&srs_domain, sender.s + j + 1)) {
+           switch(srsreverse(sender.s)) {
+             case -3: log1(srs_error.s); log1("\n"); _exit(111); break;
+             case -2: nomem(); break;
+             case -1: log1("alert: unable to read controls\n"); _exit(111); break;
+             case 0: break;
+             case 1: if (!stralloc_copy(&sender,&srs_result)) nomem(); break;
+           }
+           if (chdir("queue") == -1) { log1("alert: unable to switch to queue directory\n"); _exit(111); }
+         }
+       }
+     }
+     bouncesender = "";
+     bouncerecip = sender.s;
+   } else {
+     bouncesender = "#@[]";
+     bouncerecip = doublebounceto.s;
+   }
 
    while (!newfield_datemake(now())) nomem();
    qmail_put(&qqt,newfield_date.s,newfield_date.len);
@@ -1455,6 +1478,8 @@ int getcontrols() { if (control_init() == -1) return 0;
  if (!stralloc_cats(&doublebounceto,"@")) return 0;
  if (!stralloc_cat(&doublebounceto,&doublebouncehost)) return 0;
  if (!stralloc_0(&doublebounceto)) return 0;
+ if (control_readline(&srs_domain,"control/srs_domain") == -1) return 0;
+ if (srs_domain.len && !stralloc_0(&srs_domain)) return 0;
  if (control_readfile(&locals,"control/locals",1) != 1) return 0;
  if (!constmap_init(&maplocals,locals.s,locals.len,0)) return 0;
  switch(control_readfile(&percenthack,"control/percenthack",0))

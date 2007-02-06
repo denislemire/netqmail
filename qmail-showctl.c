@@ -259,6 +259,11 @@ void main()
 
   do_str("smtpgreeting",1,"smtpgreeting","SMTP greeting: 220 ");
   do_lst("smtproutes","No artificial SMTP routes.","SMTP route: ","");
+  do_str("srs_domain",0,"","SRS domain name is ");
+  do_lst("srs_secrets","No secrets","","");
+  do_int("srs_maxage","21","SRS maxage is ","");
+  do_int("srs_hashlength","4","SRS hashlength is ","");
+  do_int("srs_hashmin","4","SRS hashmin is ","");
   do_int("spfbehavior","0","The SPF behavior is ","");
   do_str("spfexp",0,SPF_DEFEXP,"The SPF default explanation is: 550 ");
   do_str("spfguess",0,"","The guess SPF rules are: ");
@@ -298,6 +303,11 @@ void main()
     if (str_equal(d->d_name,"rcpthosts")) continue;
     if (str_equal(d->d_name,"smtpgreeting")) continue;
     if (str_equal(d->d_name,"smtproutes")) continue;
+    if (str_equal(d->d_name,"srs_domain")) continue;
+    if (str_equal(d->d_name,"srs_secrets")) continue;
+    if (str_equal(d->d_name,"srs_maxage")) continue;
+    if (str_equal(d->d_name,"srs_hashlength")) continue;
+    if (str_equal(d->d_name,"srs_hashmin")) continue;
     if (str_equal(d->d_name,"spfbehavior")) continue;
     if (str_equal(d->d_name,"spfexp")) continue;
     if (str_equal(d->d_name,"spfguess")) continue;
