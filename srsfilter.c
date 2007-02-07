@@ -134,4 +134,3 @@ char **argv;
   strerr_die2x(0,"srsfilter: qp ",num);
 
 }
-

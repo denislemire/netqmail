@@ -163,4 +163,3 @@ int srsreverse(char *srsaddress) {
   
   return 1;
 }
-
