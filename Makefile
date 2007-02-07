@@ -846,7 +846,7 @@ dnsptr dnsip dnsmxip dnsfq dnstxt hostname ipmeprint qreceipt qsmhook qbiff \
 forward preline condredirect bouncesaying except maildirmake \
 maildir2mbox maildirwatch qail elq pinq idedit install-big install \
 instcheck home home+df proc proc+df binm1 binm1+df binm2 binm2+df \
-binm3 binm3+df spfquery update_tmprsadh srsfilter
+binm3 binm3+df spfquery update_tmprsadh srsfilter qmail-dk
 
 load: \
 make-load warn-auto.sh systype
@@ -1176,6 +1176,32 @@ qmail-control.9 conf-break conf-spawn
 	| sed s}BREAK}"`head -1 conf-break`"}g \
 	| sed s}SPAWN}"`head -1 conf-spawn`"}g \
 	> qmail-control.5
+
+qmail-dk: \
+load qmail-dk.o triggerpull.o fmtqfn.o now.o date822fmt.o \
+datetime.a seek.a ndelay.a open.a sig.a alloc.a substdio.a error.a \
+str.a fs.a auto_qmail.o auto_split.o auto_uids.o fd.a wait.a \
+env.a getln.a control.o stralloc.a dns.lib
+	./load qmail-dk triggerpull.o fmtqfn.o now.o \
+	date822fmt.o datetime.a seek.a ndelay.a open.a sig.a \
+	substdio.a error.a fs.a auto_qmail.o \
+	auto_split.o auto_uids.o \
+	fd.a wait.a \
+        -lcrypto env.a control.o open.a getln.a \
+	stralloc.a alloc.a  scan_ulong.o str.a `cat dns.lib` \
+	-I/usr/local/include -L/usr/local/lib -ldomainkeys
+
+qmail-dk.0: \
+qmail-dk.8
+	nroff -man qmail-dk.8 > qmail-dk.0
+
+qmail-dk.o: \
+compile qmail-dk.c readwrite.h sig.h exit.h open.h seek.h fmt.h \
+alloc.h substdio.h datetime.h now.h datetime.h triggerpull.h extra.h \
+env.h wait.h fd.h fork.h str.h \
+auto_qmail.h auto_uids.h date822fmt.h fmtqfn.h
+	./compile qmail-dk.c \
+	-I/usr/local/include -L/usr/local/lib -ldomainkeys
 
 qmail-getpw: \
 load qmail-getpw.o case.a substdio.a error.a str.a fs.a auto_break.o \
