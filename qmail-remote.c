@@ -44,6 +44,8 @@ stralloc routes = {0};
 struct constmap maproutes;
 stralloc host = {0};
 stralloc sender = {0};
+stralloc auth_smtp_user = {0};
+stralloc auth_smtp_pass = {0};
 
 saa reciplist = {0};
 
@@ -526,6 +528,7 @@ void smtp()
   unsigned long code;
   int flagbother;
   int i;
+  stralloc slop = {0};
 
 #ifndef PORT_SMTP
   /* the qmtpc patch uses smtp_port and undefines PORT_SMTP */
@@ -542,6 +545,52 @@ void smtp()
 #endif
  
   if (smtpcode() != 220) quit("ZConnected to "," but greeting failed");
+
+   substdio_puts(&smtpto,"EHLO ");
+    substdio_put(&smtpto,helohost.s,helohost.len);
+    substdio_puts(&smtpto,"\r\n");
+    substdio_flush(&smtpto);
+   if (smtpcode() != 250) {
+     substdio_puts(&smtpto,"HELO ");
+     substdio_put(&smtpto,helohost.s,helohost.len);
+     substdio_puts(&smtpto,"\r\n");
+     substdio_flush(&smtpto);
+     if (smtpcode() != 250) quit("ZConnected to "," but my name was rejected");
+   }
+   i = 0;
+   while((i += str_chr(smtptext.s+i,'\n') + 1) && (i+14 < smtptext.len) &&
+         str_diffn(smtptext.s+i+4,"AUTH LOGIN\n",11) &&
+         str_diffn(smtptext.s+i+4,"AUTH LOGIN ",11) &&
+         str_diffn(smtptext.s+i+4,"AUTH PLAIN LOGIN\n",17) &&
+         str_diffn(smtptext.s+i+4,"AUTH PLAIN LOGIN ",17) &&
+         str_diffn(smtptext.s+i+4,"AUTH=LOGIN\n",11) &&
+         str_diffn(smtptext.s+i+4,"AUTH=LOGIN ",11));
+   if ((i+14 < smtptext.len) && auth_smtp_user.len && auth_smtp_pass.len)  {
+     substdio_puts(&smtpto,"AUTH LOGIN\r\n");
+     substdio_flush(&smtpto);
+     if (smtpcode() != 334) quit("ZConnected to "," but authentication was rejected (AUTH LOGIN)");
+     if (b64encode(&auth_smtp_user,&slop) < 0) temp_nomem();
+     substdio_put(&smtpto,slop.s,slop.len);
+     substdio_puts(&smtpto,"\r\n");
+     substdio_flush(&smtpto);
+     if (smtpcode() != 334) quit("ZConnected to "," but authentication was rejected (username)");
+     if (b64encode(&auth_smtp_pass,&slop) < 0) temp_nomem();
+     substdio_put(&smtpto,slop.s,slop.len);
+     substdio_puts(&smtpto,"\r\n");
+     substdio_flush(&smtpto);
+     if (smtpcode() != 235) quit("ZConnected to "," but authentication was rejected (password)");
+     substdio_puts(&smtpto,"MAIL FROM:<");
+     substdio_put(&smtpto,sender.s,sender.len);
+     substdio_puts(&smtpto,"> AUTH=<");
+     substdio_put(&smtpto,sender.s,sender.len);
+     substdio_puts(&smtpto,">\r\n");
+     substdio_flush(&smtpto);
+   } else {
+     substdio_puts(&smtpto,"MAIL FROM:<");
+     substdio_put(&smtpto,sender.s,sender.len);
+     substdio_puts(&smtpto,">\r\n");
+     substdio_flush(&smtpto);
+   }
  
 #ifdef EHLO
 # ifdef TLS
@@ -563,21 +612,12 @@ void smtp()
     /* and if EHLO failed, use HELO */
   } else {
 #endif
- 
-  substdio_puts(&smtpto,"HELO ");
   substdio_put(&smtpto,helohost.s,helohost.len);
   substdio_puts(&smtpto,"\r\n");
   substdio_flush(&smtpto);
-  if (smtpcode() != 250) quit("ZConnected to "," but my name was rejected");
- 
 #ifdef EHLO
   }
 #endif
- 
-  substdio_puts(&smtpto,"MAIL FROM:<");
-  substdio_put(&smtpto,sender.s,sender.len);
-  substdio_puts(&smtpto,">\r\n");
-  substdio_flush(&smtpto);
   code = smtpcode();
   if (code >= 500) quit("DConnected to "," but sender was rejected");
   if (code >= 400) quit("ZConnected to "," but sender was rejected");
@@ -682,7 +722,7 @@ int argc;
 char **argv;
 {
   static ipalloc ip = {0};
-  int i;
+  int i,j;
   unsigned long random;
   char **recips;
   unsigned long prefme;
@@ -698,6 +738,9 @@ char **argv;
  
   if (!stralloc_copys(&host,argv[1])) temp_nomem();
  
+  if (!stralloc_copys(&auth_smtp_user,"")) temp_nomem();
+  if (!stralloc_copys(&auth_smtp_pass,"")) temp_nomem();
+
   relayhost = 0;
   for (i = 0;i <= host.len;++i)
     if ((i == 0) || (i == host.len) || (host.s[i] == '.'))
@@ -706,6 +749,16 @@ char **argv;
   if (relayhost && !*relayhost) relayhost = 0;
  
   if (relayhost) {
+    i = str_chr(relayhost,' ');
+    if (relayhost[i]) {
+      j = str_chr(relayhost + i + 1,' ');
+      if (relayhost[j]) {
+	relayhost[i] = 0;
+	relayhost[i + j + 1] = 0;
+	if (!stralloc_copys(&auth_smtp_user,relayhost + i + 1)) temp_nomem();
+	if (!stralloc_copys(&auth_smtp_pass,relayhost + i + j + 2)) temp_nomem();
+      }
+    }
     i = str_chr(relayhost,':');
     if (relayhost[i]) {
       scan_ulong(relayhost + i + 1,&port);
