@@ -309,6 +309,7 @@ forward.o
 forward
 preline.o
 preline
+ucspitls.o
 condredirect.o
 condredirect
 bouncesaying.o

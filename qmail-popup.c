@@ -13,6 +13,8 @@
 #include "readwrite.h"
 #include "timeoutread.h"
 #include "timeoutwrite.h"
+#include "env.h"
+#include "ucspitls.h"
 
 void die() { _exit(1); }
 
@@ -61,6 +63,7 @@ void die_write() { err("unable to write pipe"); die(); }
 void die_fork() { err("unable to fork"); die(); }
 void die_childcrashed() { err("aack, child crashed"); }
 void die_badauth() { err("authorization failed"); }
+void die_tls() { err("TLS startup failed"); die(); }
 
 void err_syntax() { err("syntax error"); }
 void err_wantuser() { err("USER first"); }
@@ -77,6 +80,8 @@ int seenuser = 0;
 char **childargs;
 substdio ssup;
 char upbuf[128];
+int tls_available = 0;
+int tls_started = 0;
 
 
 void doanddie(user,userlen,pass)
@@ -155,12 +160,36 @@ void pop3_apop(arg) char *arg;
   *space++ = 0;
   doanddie(arg,space - arg,space);
 }
+void pop3_capa(arg) char *arg;
+{
+  puts("+OK capability list follows\r\n");
+  if (tls_available && !tls_started)
+    puts("STLS\r\n");
+  puts(".\r\n");
+  flush();
+}
+void pop3_stls(arg) char *arg;
+{
+  if (!tls_available || tls_started)
+    return err("STLS not available");
+  puts("+OK starting TLS negotiation\r\n");
+  flush();
+
+  if (!ucspitls())
+    die_tls();
+
+  tls_started = 1;
+  /* reset state */
+  seenuser = 0;
+}
 
 struct commands pop3commands[] = {
   { "user", pop3_user, 0 }
 , { "pass", pop3_pass, 0 }
 , { "apop", pop3_apop, 0 }
 , { "quit", pop3_quit, 0 }
+, { "capa", pop3_capa, 0 }
+, { "stls", pop3_stls, 0 }
 , { "noop", okay, 0 }
 , { 0, err_authoriz, 0 }
 } ;
@@ -177,6 +206,8 @@ char **argv;
   childargs = argv + 2;
   if (!*childargs) die_usage();
  
+  tls_available = !!env_get("UCSPITLS");
+
   pop3_greet();
   commands(&ssin,pop3commands);
   die();

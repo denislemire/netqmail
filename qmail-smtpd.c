@@ -34,6 +34,7 @@
 #include "timeoutread.h"
 #include "timeoutwrite.h"
 #include "commands.h"
+#include "ucspitls.h"
 #include "spf.h"
 #include "wait.h"
 /* start chkuser code */
@@ -48,6 +49,8 @@
 #define MAXHOPS 100
 unsigned int databytes = 0;
 int timeout = 1200;
+int tls_available = 0;
+int tls_started = 0;
 unsigned int spfbehavior = 0;
 
 int safewrite(fd,buf,len) int fd; char *buf; int len;
@@ -70,6 +73,7 @@ void die_nomem() { out("421 out of memory (#4.3.0)\r\n"); flush(); _exit(1); }
 void die_control() { out("421 unable to read controls (#4.3.0)\r\n"); flush(); _exit(1); }
 void die_ipme() { out("421 unable to figure out my IP addresses (#4.3.0)\r\n"); flush(); _exit(1); }
 void straynewline() { out("451 See http://pobox.com/~djb/docs/smtplf.html.\r\n"); flush(); _exit(1); }
+void die_syserr() { out("421 system error (#4.3.0)\r\n"); flush(); _exit(1); }
 
 void err_bmf() { out("553 sorry, your envelope sender is in my badmailfrom list (#5.7.1)\r\n"); }
 void err_gmf() { out("553 sorry, your envelope sender is not in my goodmailfrom list (#5.7.1)\r\n"); }
@@ -329,6 +333,8 @@ void smtp_ehlo(arg) char *arg;
   out("\r\n250-AUTH=LOGIN PLAIN");
 #endif
   out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
+  if (tls_available && !tls_started)
+    out("\r\n250-STARTTLS");
   seenmail = 0; dohelo(arg);
 }
 void smtp_rset(arg) char *arg;
@@ -451,7 +457,22 @@ void smtp_rcpt(arg) char *arg; {
   if (!stralloc_0(&rcptto)) die_nomem();
   out("250 ok\r\n");
 }
+void smtp_starttls(arg) char *arg; {
+  unsigned long long_fd;
+  int fd;
+  char *fdstr;
+  if (!tls_available || tls_started)
+    return err_unimpl(arg);
+  out("220 2.0.0 Ready to start TLS\r\n");
+  flush();
 
+  if (!ucspitls())
+    die_syserr();
+
+  tls_started = 1;
+  /* reset SMTP state */
+  seenmail = 0;
+}
 
 int saferead(fd,buf,len) int fd; char *buf; int len;
 {
@@ -827,6 +848,7 @@ struct commands smtpcommands[] = {
 , { "help", smtp_help, flush }
 , { "noop", err_noop, flush }
 , { "vrfy", err_vrfy, flush }
+, { "starttls", smtp_starttls, flush }
 , { 0, err_unimpl, flush }
 } ;
 
@@ -841,6 +863,7 @@ char **argv;
   if (chdir(auto_qmail) == -1) die_control();
   setup();
   if (ipme_init() != 1) die_ipme();
+  tls_available = !!env_get("UCSPITLS");
   smtp_greet("220 ");
   out(" ESMTP\r\n");
   if (commands(&ssin,&smtpcommands) == 0) die_read();

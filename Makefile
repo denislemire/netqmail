@@ -1391,9 +1391,11 @@ timeoutwrite.h
 
 qmail-popup: \
 load qmail-popup.o commands.o timeoutread.o timeoutwrite.o now.o \
+envread.o ucspitls.o \
 case.a fd.a sig.a wait.a stralloc.a alloc.a substdio.a error.a str.a \
 fs.a socket.lib
 	./load qmail-popup commands.o timeoutread.o timeoutwrite.o \
+	envread.o ucspitls.o \
 	now.o case.a fd.a sig.a wait.a stralloc.a alloc.a \
 	substdio.a error.a str.a fs.a  `cat socket.lib`
 
@@ -1640,10 +1642,10 @@ load qmail-smtpd.o chkuser.o rcpthosts.o commands.o timeoutread.o \
 timeoutwrite.o ip.o ipme.o ipalloc.o strsalloc.o control.o constmap.o \
 received.o date822fmt.o now.o qmail.o spf.o dns.o cdb.a fd.a wait.a \
 datetime.a getln.a open.a sig.a case.a env.a stralloc.a alloc.a substdio.a \
-error.a str.a fs.a auto_qmail.o socket.lib dns.lib base64.o
+error.a str.a fs.a auto_qmail.o socket.lib dns.lib base64.o ucspitls.o
 	./load qmail-smtpd $(SMTPD_CHKUSER_OBJ) rcpthosts.o commands.o timeoutread.o \
 	timeoutwrite.o ip.o ipme.o ipalloc.o strsalloc.o control.o \
-	constmap.o received.o date822fmt.o now.o qmail.o spf.o cdb.a \
+	constmap.o ucspitls.o received.o date822fmt.o now.o qmail.o spf.o cdb.a \
 	fd.a wait.a datetime.a getln.a open.a sig.a case.a env.a stralloc.a \
 	alloc.a substdio.a error.a fs.a auto_qmail.o base64.o \
 	$(VPOPMAIL_LIBS) \
