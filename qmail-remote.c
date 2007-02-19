@@ -276,9 +276,6 @@ void smtp()
      substdio_flush(&smtpto);
    }
  
-  substdio_put(&smtpto,helohost.s,helohost.len);
-  substdio_puts(&smtpto,"\r\n");
-  substdio_flush(&smtpto);
   code = smtpcode();
   if (code >= 500) quit("DConnected to "," but sender was rejected");
   if (code >= 400) quit("ZConnected to "," but sender was rejected");
