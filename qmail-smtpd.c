@@ -332,10 +332,10 @@ void smtp_ehlo(arg) char *arg;
   out("\r\n250-AUTH LOGIN PLAIN");
   out("\r\n250-AUTH=LOGIN PLAIN");
 #endif
-  out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
   if (tls_available && !tls_started)
     out("\r\n250-STARTTLS");
   seenmail = 0; dohelo(arg);
+  out("\r\n250-PIPELINING\r\n250 8BITMIME\r\n");
 }
 void smtp_rset(arg) char *arg;
 {
