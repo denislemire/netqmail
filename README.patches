@@ -1,0 +1,48 @@
+Heavily Modified qmail
+
+Denis Lemire <denis@lemire.name>
+
+2007-02-26
+
+Overview
+========
+
+This netqmail source tree has been heavily patched to meet my needs during my
+use of qmail in production environments over the past five years. I have not
+personally written any of these patches, but have invested the effort of
+combining them into a single coherent set.
+
+I have found this to be necessary given the amount of time it takes to
+successfully resolve conflicts among the multiple patches available for
+qmail.
+
+The following patches have been integrated into this qmail source tree:
+
+	chkuser-2.0.8b
+	doublebounce-trim
+	netqmail-1.05-ucspitls-0.3
+	outgoingip
+	qmail-1.03-dk-0.54
+	qmail-maildir++
+	qmail-remote-auth
+	qmail-smtpd-auth-0.31
+	qmail-smtpd-auth-close3
+	qmail-smtpd_gmfcheck
+	qmail-spf-rc5
+	qmail-srs-0.5
+
+
+External Package Dependencies
+=============================
+
+	libsrs2 1.0.18
+	libdomainkeys 0.68
+	ucspi-ssl 0.70 (with TLS support)
+	vpopmail 5.4.17
+
+
+TODO
+====
+
+Add more information on the individual patches, including the source URL and
+functionality details.
