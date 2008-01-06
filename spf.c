@@ -385,7 +385,7 @@ static int spf_a(char *spec, char *mask)
 		default:
 			r = SPF_NONE;
 			for(j = 0; j < ia.len; ++j)
-				if (matchip(&ia.ix[j].ip, ipmask, &ip)) {
+				if (matchip(&ia.ix[j].addr.ip, ipmask, &ip)) {
 					r = SPF_OK;
 					break;
 				}
@@ -417,7 +417,7 @@ static int spf_mx(char *spec, char *mask)
 		default:
 			r = SPF_NONE;
 			for(j = 0; j < ia.len; ++j)
-				if (matchip(&ia.ix[j].ip, ipmask, &ip)) {
+				if (matchip(&ia.ix[j].addr.ip, ipmask, &ip)) {
 					r = SPF_OK;
 					break;
 				}
@@ -469,7 +469,7 @@ static int spf_ptr(char *spec, char *mask)
 					case DNS_HARD: break;
 					default:
 						for(k = 0; k < ia.len; ++k)
-							if (matchip(&ia.ix[k].ip, 32, &ip)) {
+							if (matchip(&ia.ix[k].addr.ip, 32, &ip)) {
 								if (!sender_fqdn.len)
 									if (!stralloc_copy(&sender_fqdn, &ssa.sa[j])) return SPF_NOMEM;
 
