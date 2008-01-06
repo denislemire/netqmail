@@ -1,14 +1,17 @@
+#include <sys/types.h>
+#include <sys/socket.h>
 #include "tcpto.h"
 #include "open.h"
 #include "lock.h"
 #include "seek.h"
 #include "now.h"
 #include "ip.h"
+#include "ipalloc.h"
 #include "byte.h"
 #include "datetime.h"
 #include "readwrite.h"
 
-char tcpto_buf[1024];
+char tcpto_buf[2048];
 
 static int flagwasthere;
 static int fdlock;
@@ -26,13 +29,27 @@ static int getbuf()
  r = read(fd,tcpto_buf,sizeof(tcpto_buf));
  close(fd);
  if (r < 0) { close(fdlock); return 0; }
- r >>= 4;
+ r >>= 5;
  if (!r) close(fdlock);
  return r;
 }
 
-int tcpto(ip) struct ip_address *ip;
+/*
+  struct tcpto {  32bytes
+    char af;             +0
+    char nul[3];
+    char resason;        +4
+    char nul[3];
+    ulong when;          +8
+    char nul[4];
+    union { ip4, ip6 };  +16
+*/
+
+int tcpto(ix)
+struct ip_mx *ix;
 {
+ int af = ix->af;
+ struct ip_address *ip = &ix->addr.ip;
  int n;
  int i;
  char *record;
@@ -47,7 +64,7 @@ int tcpto(ip) struct ip_address *ip;
  record = tcpto_buf;
  for (i = 0;i < n;++i)
   {
-   if (byte_equal(ip->d,4,record))
+   if (af == record[0] && byte_equal(ip->d,af==AF_INET ? 4 : 16,record+16))
     {
      flagwasthere = 1;
      if (record[4] >= 2)
@@ -62,12 +79,14 @@ int tcpto(ip) struct ip_address *ip;
       }
      return 0;
     }
-   record += 16;
+   record += 32;
   }
  return 0;
 }
 
-void tcpto_err(ip,flagerr) struct ip_address *ip; int flagerr;
+void tcpto_err(af,ip,flagerr)
+int af;
+struct ip_address *ip; int flagerr;
 {
  int n;
  int i;
@@ -87,7 +106,7 @@ void tcpto_err(ip,flagerr) struct ip_address *ip; int flagerr;
  record = tcpto_buf;
  for (i = 0;i < n;++i)
   {
-   if (byte_equal(ip->d,4,record))
+   if (af == record[0] && byte_equal(ip->d,af == AF_INET ? 4 : 16,record+16))
     {
      if (!flagerr)
        record[4] = 0;
@@ -107,13 +126,13 @@ void tcpto_err(ip,flagerr) struct ip_address *ip; int flagerr;
        record[10] = when; when >>= 8;
        record[11] = when;
       }
-     if (seek_set(fdlock,i << 4) == 0)
-       if (write(fdlock,record,16) < 16)
+     if (seek_set(fdlock,i << 5) == 0)
+       if (write(fdlock,record,32) < 32)
          ; /*XXX*/
      close(fdlock);
      return;
     }
-   record += 16;
+   record += 32;
   }
 
  if (!flagerr) { close(fdlock); return; }
@@ -122,7 +141,7 @@ void tcpto_err(ip,flagerr) struct ip_address *ip; int flagerr;
  for (i = 0;i < n;++i)
   {
    if (!record[4]) break;
-   record += 16;
+   record += 32;
   }
 
  if (i >= n)
@@ -141,23 +160,24 @@ void tcpto_err(ip,flagerr) struct ip_address *ip; int flagerr;
        firstpos = i;
        firstwhen = when;
       }
-     record += 16;
+     record += 32;
     }
    i = firstpos;
   }
 
  if (i >= 0)
   {
-   record = tcpto_buf + (i << 4);
-   byte_copy(record,4,ip->d);
+   record = tcpto_buf + (i << 5);
+   record[0] = af;
+   byte_copy(record+16,16,&ip);
    when = now();
    record[8] = when; when >>= 8;
    record[9] = when; when >>= 8;
    record[10] = when; when >>= 8;
    record[11] = when;
    record[4] = 1;
-   if (seek_set(fdlock,i << 4) == 0)
-     if (write(fdlock,record,16) < 16)
+   if (seek_set(fdlock,i << 5) == 0)
+     if (write(fdlock,record,32) < 32)
        ; /*XXX*/
   }
 
