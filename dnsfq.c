@@ -1,5 +1,3 @@
-#include <sys/types.h>
-#include <sys/socket.h>
 #include "substdio.h"
 #include "subfd.h"
 #include "stralloc.h"
@@ -31,13 +29,7 @@ char **argv;
   {
    substdio_putsflush(subfderr,"no IP addresses\n"); _exit(100);
   }
- if (ia.ix[0].af == AF_INET)
-      dnsdoe(dns_ptr(&sa,&ia.ix[0].addr.ip));
-#ifdef INET6
- else
-      dnsdoe(dns_ptr6(&sa,&ia.ix[0].addr.ip6));
-#endif
-
+ dnsdoe(dns_ptr(&ssa,&ia.ix[0].ip));
  for(j = 0;j < ssa.len;++j)
   {
    substdio_putflush(subfdout,ssa.sa[j].s,ssa.sa[j].len);

@@ -3,7 +3,7 @@
 #include "substdio.h"
 #include "readwrite.h"
 
-char tcpto_cleanbuf[2048];
+char tcpto_cleanbuf[1024];
 
 void tcpto_clean() /* running from queue/mess */
 {

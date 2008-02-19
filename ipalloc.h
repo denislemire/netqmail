@@ -3,16 +3,7 @@
 
 #include "ip.h"
 
-struct ip_mx {
-  unsigned short af;
-  union {
-    struct ip_address ip;
-#ifdef INET6
-    struct ip6_address ip6;
-#endif
-    } addr;
-  int pref;
-};
+struct ip_mx { struct ip_address ip; int pref; } ;
 
 #include "gen_alloc.h"
 
